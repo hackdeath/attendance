@@ -25,13 +25,14 @@
 
 from datetime import datetime, date
 
-def get_entradas_list(in_file):
+def get_entradas_list(inFile):
 	#lendo a primeira linha, que não é utilizada.
-	in_file.split("\n")
-	
+	inFile = inFile.split('\n')[1:]
+
+
 	#lista de entradas (ponto)
 	entradas = []
-	for line in in_file:
+	for line in inFile:
 		splited_line = line.split("\t")
 		dt = datetime.strptime(splited_line[4][:-2], "%Y/%m/%d  %H:%M")
 		
@@ -45,21 +46,58 @@ def filtro(entradas, name, date):
 	
 	return filtro
 
-def process(entradas):
-	entradas_list = [];
+#Código ainda não testado.
+def process(input):
+	fInput = []
+
+	while input:
+		#Pegando um nome não utilizado
+		name = input[0]['name']
+		id = input[0]['id']
+
+		#Transferindo os dados de uma pessoa para perInput
+		dateInput = []
+		for i in range(len(input)):
+			if input[i]['name'] == name:
+				dateInput.append(input[i]['date'])
+				del input[i]
+
+		#Ordenando as datas
+		dtInput.sort()
+
+		datesList = []
+		for i in dtInput:
+			#Restringindo a apenas uma data
+			dateSelect = []
+			for j in range(len(dtInput)):
+				if dtInput[i].date == dtInput[j].date:
+					dateSelect = dtInput[j]
+					del dtInput[j]
+
+			#Encontrando menor horário do dia
+			initTime = datetime.max
+			for j in dateSelect:
+				if initTime > j:
+					initTime = j
+
+			#Encontrando maior horário do dia
+			finalTime = datetime.min
+			for j in dateSelect:
+				if finalTime < j:
+					finalTime = j
+
+			#Checando se houve apenas uma entrada e calculando timedelta
+			if initTime == finalTime:
+				timeDiff = timedelta(0)
+			else:
+				timeDiff = finalTime - initTime
+
+			datesList = {"date": i, "hours": timeDiff}
+
+		#salvando os dados finais para o template
+		fInput.append({"id": id, "name": name, "datesList": dateInput})
 	
-	for item in entradas:
-	#	print "--------------", item["id"], item["name"],item["date"]
-		sub_filtro = []
-		sub_filtro = filtro(entradas, item["name"], item["date"].date())
-					
-		for thing in sub_filtro:
-			if not(thing in entradas_list):
-				entradas_list.append(thing)
-
-
-	#for item in entradas_list:
-	#	print item["id"], item["name"], item["date"]
+	return fInput
 
 def main():
 	
