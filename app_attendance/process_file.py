@@ -24,18 +24,18 @@
 
 
 from datetime import datetime, date
+import itertools
 
 def get_entradas_list(inFile):
 	#lendo a primeira linha, que não é utilizada.
 	inFile = inFile.split('\n')[1:]
-
-
+	
 	#lista de entradas (ponto)
 	entradas = []
 	for line in inFile:
 		splited_line = line.split("\t")
-		dt = datetime.strptime(splited_line[4][:-2], "%Y/%m/%d  %H:%M")
-		
+		dt = datetime.strptime(splited_line[4][:-1], "%Y/%m/%d  %H:%M")
+
 		d = {"id": splited_line[2], "name": splited_line[3].strip(), "date": dt}
 		entradas.append(d)
 	return entradas	
@@ -49,6 +49,21 @@ def filtro(entradas, name, date):
 #Código ainda não testado.
 def process(input):
 	fInput = []
+	
+	# for item in entradas:
+	# #	print "--------------", item["id"], item["name"],item["date"]
+	# 	sub_filtro = []
+	# 	sub_filtro = filtro(entradas, item["name"], item["date"].date())
+					
+	# 	for thing in sub_filtro:
+	# 		if not(thing in entradas_list):
+	# 			entradas_list.append(thing)
+    
+ #    #divide a lista em pares
+	# for x, y in zip(entradas_list, entradas_list):
+	# 	print("Current: {0}\nNext: {1}".format(x["date"], y["date"]))
+
+	# # return str(entradas_list)
 
 	while input:
 		#Pegando um nome não utilizado
@@ -96,11 +111,9 @@ def process(input):
 
 		#salvando os dados finais para o template
 		fInput.append({"id": id, "name": name, "datesList": dateInput})
-	
 	return fInput
 
 def main():
-	
 	entradas = get_entradas_list()
 
 	process(entradas)

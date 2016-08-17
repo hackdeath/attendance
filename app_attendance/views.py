@@ -1,7 +1,7 @@
 from django.http      import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from .forms           import UploadFileForm
-from .process_file     import *
+from .process_file    import *
 
 def index(request):
 	form = UploadFileForm()

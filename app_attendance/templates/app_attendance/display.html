@@ -1,7 +1,11 @@
 {% extends "app_attendance/base.html" %} 
 
+
 {% block title %}Display{% endblock %}
 
 {% block content %}
-{{input}}
+{{ input }}
+	<!-- {% for value in input %}
+		<li>{{ value.id }} {{ value.name }} {{ value.date|date:"SHORT_DATE_FORMAT" }}</li>
+	{% endfor%} -->
 {% endblock %}
