@@ -28,7 +28,7 @@ import itertools
 
 def get_entradas_list(inFile):
 	#lendo a primeira linha, que não é utilizada.
-	inFile = inFile.split('\n')[1:]
+	inFile = inFile.split('\n')[1:-1]
 	
 	#lista de entradas (ponto)
 	entradas = []
@@ -49,7 +49,7 @@ def filtro(entradas, name, date):
 #Código ainda não testado.
 def process(input):
 	fInput = []
-	
+
 	# for item in entradas:
 	# #	print "--------------", item["id"], item["name"],item["date"]
 	# 	sub_filtro = []
