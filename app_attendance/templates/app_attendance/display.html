@@ -1,0 +1,10 @@
+{% extends "app_attendance/base.html" %} 
+
+{% block title %}Selecione um arquivo{% endblock %}
+
+{% block content %}
+	{% for value in input %}
+	<!-- ID NAME DATE -->
+		<li>{{ value.id }} {{ value.name }} {{ value.date|date:"SHORT_DATE_FORMAT" }}</li>
+	{% endfor%}
+{% endblock %}
