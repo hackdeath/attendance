@@ -1,5 +1,17 @@
 #!/usr/bin/env python
 
+"""
+pessoa     = {"id": int, "name": string, "date": datetime}
+dt_person  = {"id": int, "date": datetime}
+qt_hours   = {"id": int, "period": (datetime, datetime), "quantity": int}
+hours_sum  = timedelta
+
+#[1 1 1 1 1 2 2 2 3 3 3 4]
+#[[1 1 1 1 1], [2 2 2], [3 3 3], [4]]
+#[soma(1), soma(2), soma(3), soma(4)]
+"""
+
+
 from datetime import datetime, timedelta
 
 def get_input(inFile):
@@ -11,11 +23,24 @@ def get_input(inFile):
     for line in inFile:
         splited_line = line.split("\t")
         date = datetime.strptime(splited_line[4][:-1], "%Y/%m/%d  %H:%M")
-
         item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date}
         input_list.append(item)
 
     return input_list
+
+
+def sum_hours_person(test_list):
+    """ Soma a quantidade de horas 'trabalhadas' por uma pessoa """
+
+    date_list = [item["date"] for item in test_list]
+    date_list.sort()
+
+    start = date_list[0]
+    final = date_list[len(date_list)-1]
+    
+    qt_hours = {"id": test_list[0]["id"], "period": (start, final), "quantity": sum_hours([date_list])}
+
+    return qt_hours
 
 def sum_hours(hours):
     """ Retorna a quantidade de horas 'trabalhadas' nessa lista de horários
