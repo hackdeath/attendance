@@ -22,7 +22,21 @@ def get_input(inFile):
     #test_list = [{"id": person["id"], "date": person["date"]} for person in input_list if person["id"] == "000000001"][1:8]
     #test_list = [{"id": person["id"], "date": person["date"]} for person in input_list if person["date"] > last_week]
     test_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
-    return split_people(test_list)
+    return test_list
+
+def filter(inputs, initDate, finalDate):
+    
+    fInputs = []
+
+    
+    for i in inputs:
+        if (initDate < i["date"] < finalDate):
+            fInputs.append(i)
+
+
+
+
+    return split_people(fInputs)
 
 def sum_hours_person(person_list):
     """ Soma a quantidade de horas 'trabalhadas' por uma pessoa """
