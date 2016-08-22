@@ -24,18 +24,12 @@ def get_input(inFile):
     test_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
     return test_list
 
-def filter(inputs, initDate, finalDate):
-    
+def filter_by_period (inputs, initDate, finalDate):
     fInputs = []
-
-    
+    selectInputs = []
     for i in inputs:
         if (initDate < i["date"] < finalDate):
-            fInputs.append(i)
-
-
-
-
+            selectInputs.append(i)
     return split_people(fInputs)
 
 def sum_hours_person(person_list):
@@ -94,9 +88,3 @@ def split_people(inputs):
 
     print("Antonio: {0}".format(splited_people))
     return list(map(sum_hours_person, splited_people))
-
-def main():
-    print (split_people())
-
-if __name__ == '__main__':
-	main()

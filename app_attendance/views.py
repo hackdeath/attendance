@@ -18,8 +18,8 @@ def display(request):
 			input = get_input(ufile.read().decode("UTF-8"))
 			initDate = datetime.datetime(2016,1,1)
 			finalDate = datetime.datetime.today()
-			input = filter(input, initDate, finalDate)
-			return render(request, 'app_attendance/display.html', {'input': input})
+			input = filter_by_period(input, initDate, finalDate)
+			return render(request, 'app_attendance/display.html', {'people': input})
 		else:
 			return HttpResponse('Preenchimento do formulário inválido')
 	else:
