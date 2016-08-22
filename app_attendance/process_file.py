@@ -44,38 +44,23 @@ def split_people():
 
 	ids_set = set(ids_list)
 
-	splited_person = []
+	splited_people = []
 
 	for i in ids_set:
-		splited_people = []
+		splited_person = []
+		j = 0
+		print(splited_people)
 		while j < len(inputs):
+			print ("j = {0} | len(inputs) = {1} | id = {2} | i = {3}".format(j, len(inputs), inputs[j]["id"],  i))
 			if i == inputs[j]["id"]:
-				splited_people.append(obj)
+				splited_person.append(inputs[j])
 				del inputs[j]
-				
+				j -= 1
 			j += 1
 
-		splited_person.append(splited_people)
-	# for i in range(len(inputs)):
-	# 	#Separando um id para buscar
-	# 	id = inputs[i]["id"]
+		splited_people.append(splited_person)
 
-	# 	#Iniciando a lista temporária dos dados de um único id
-	# 	splited_people = []
-	# 	#Percorrendo os valores disponíveis para achar os dados do id escolhido 
-	# 	for obj in inputs:
-	# 		print ("id = {0} | i = {1} | obj = {2}".format(id,i,obj))
-	# 		if id == obj["id"]:
-	# 			splited_people.append(obj)
-
-	# 	for j, obj in enumerate(inputs):
-	# 		if id == obj["id"]:
-	# 			del inputs[j]
-	# 			print ("Deletei | {0}".format(j))
-	# 	#Adicinando a lista de um id à lista geral
-	# 	splited_person.append(splited_people)
-
-	return splited_person
+	return splited_people
 
 def main():
     print (split_people())
