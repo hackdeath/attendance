@@ -15,9 +15,7 @@ def get_input(inFile):
         item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date}
         input_list.append(item)
 
-    # Código abaixo para testes
-    #return sum_hours([person["date"] for person in input_list if person["id"] == "000000001"][1:8])
-    #return [person["date"] for person in input_list if person["id"] == "000000001"][1:8]
+    return input_list
 
 def sum_hours(hours):
     """ Retorna a quantidade de horas 'trabalhadas' nessa lista de horários
@@ -36,9 +34,36 @@ def sum_hours(hours):
     timedeltas = [(period[1] - period[0]) for period in splited_hours]
 
     return sum(timedeltas, timedelta())
-	
+
+def split_people(inputs):
+	""" Divide pessoas em vetores """
+
+	ids_list = []
+	for i in inputs:
+		ids_list.append(i["id"])
+
+	ids_set = set(ids_list)
+
+	splited_people = []
+
+	for i in ids_set:
+		splited_person = []
+		j = 0
+		print(splited_people)
+		while j < len(inputs):
+			print ("j = {0} | len(inputs) = {1} | id = {2} | i = {3}".format(j, len(inputs), inputs[j]["id"],  i))
+			if i == inputs[j]["id"]:
+				splited_person.append(inputs[j])
+				del inputs[j]
+				j -= 1
+			j += 1
+
+		splited_people.append(splited_person)
+
+	return splited_people
+
 def main():
-    pass
+    print (split_people())
 
 if __name__ == '__main__':
 	main()
