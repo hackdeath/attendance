@@ -13,13 +13,15 @@ hours_sum  = timedelta
 
 from datetime import *
 
+#from datetime import datetime, timedelta
+
 # [dt_person] example
-test_list = [
-    {"id": 1, "date": datetime(2016, 7, 13, 13, 30)},
-    {"id": 1, "date": datetime(2016, 7, 13, 10, 30)},
-    {"id": 1, "date": datetime(2016, 7, 13, 18, 30)},
-    {"id": 1, "date": datetime(2016, 7, 13, 12, 30)},
-]
+# test_list = [
+#     {"id": 1, "date": datetime(2016, 7, 13, 13, 30)},
+#     {"id": 1, "date": datetime(2016, 7, 13, 10, 30)},
+#     {"id": 1, "date": datetime(2016, 7, 13, 18, 30)},
+#     {"id": 1, "date": datetime(2016, 7, 13, 12, 30)},
+# ]
 
 def get_input(inFile):
     # Lê arquivo ignorando primeira e última linhas
@@ -33,7 +35,7 @@ def get_input(inFile):
         item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date}
         input_list.append(item)
 
-    return sum_hours_person(test_list)	
+    #return sum_hours_person(test_list)	
 
 
 def sum_hours_person(test_list):
@@ -44,10 +46,34 @@ def sum_hours_person(test_list):
 
     start = date_list[0]
     final = date_list[len(date_list)-1]
-    # remove " }# " from the next line to work with sum_hours()
-    qt_hours = {"id": test_list[0]["id"], "period": (start, final)}#, "quantity": sum_hours([date_list])}
+    
+    qt_hours = {"id": test_list[0]["id"], "period": (start, final), "quantity": sum_hours([date_list])}
 
     return qt_hours
+
+    
+
+def sum_hours(hours):
+    """ Retorna a quantidade de horas 'trabalhadas' nessa lista de horários
+        Por enquanto, se receber uma quantidade impar de entradas, ignora a última. """
+
+    splited_hours = []
+
+    if (len(hours) % 2 != 0):
+        hours.pop()
+
+    hours.reverse()
+
+    while(hours):
+        splited_hours += [[hours.pop(), hours.pop()]]
+
+    timedeltas = [(period[1] - period[0]) for period in splited_hours]
+
+    # Código abaixo para testes
+    #return sum_hours([person["date"] for person in input_list if person["id"] == "000000001"][1:8])
+    #return [person["date"] for person in input_list if person["id"] == "000000001"][1:8]
+
+    return sum(timedeltas, timedelta())
 	
 def main():
     pass
