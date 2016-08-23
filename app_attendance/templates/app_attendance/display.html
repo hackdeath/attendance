@@ -4,20 +4,23 @@
 {% block title %}Display{% endblock %}
 
 {% block content %}
-    <table>
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Remaining</th>
-            <th>Period</th>
-        </tr>
-    {% for person in people %}
-        <tr>
-            <td>{{ person.id }}</td>
-            <td>{{ person.name }}</td>
-            <td>{{ person.quantity }}</td>
-            <td>{{ person.period.0 }} until {{ person.period.1 }}</td>
-        </tr>
+    {% for people in months %}
+        <p>______________________________________________</p>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Remaining</th>
+                <th>Period</th>
+            </tr>
+        {% for person in people %}
+            <tr>
+                <td>{{ person.id }}</td>
+                <td>{{ person.name }}</td>
+                <td>{{ person.quantity }}</td>
+                <td>{{ person.period.0 }} until {{ person.period.1 }}</td>
+            </tr>
+        {% endfor %}
+        </table>
     {% endfor %}
-    </table>
 {% endblock %}

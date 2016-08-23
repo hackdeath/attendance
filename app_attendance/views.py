@@ -19,7 +19,7 @@ def display(request):
 			initDate = datetime.datetime(2016,1,1)
 			finalDate = datetime.datetime.today()
 			input = filter_by_period(input, initDate, finalDate)
-			return render(request, 'app_attendance/display.html', {'people': input})
+			return render(request, 'app_attendance/display.html', {'months': input})
 		else:
 			return HttpResponse('Preenchimento do formulário inválido')
 	else:
