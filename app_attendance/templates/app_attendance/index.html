@@ -3,9 +3,15 @@
 {% block title %}Selecione um arquivo{% endblock %}
 
 {% block content %}
-	<form action="{% url 'app_attendance:display' %}" method="POST" enctype="multipart/form-data">
+	<form action="{% url 'app_attendance:index' %}" method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
-		{{ form.as_p }}
+		{{ form.file.as_p }}
+		<input type="submit" name="Submit">
+	</form>
+	<hr>
+	<form action="{% url 'app_attendance:index' %}" method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		{{ form.search.as_p }}
 		<input type="submit" name="Submit">
 	</form>
 {% endblock %}
