@@ -13,16 +13,9 @@ def get_input(inFile):
 		date = datetime.strptime(splited_line[4][:-1], "%Y/%m/%d  %H:%M")
 		item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date}
 		input_list.append(item)
-
-	today = date.today()
-	last_week = today - timedelta(days=80)
-	#print(today)
-	#print(last_week)
-
-	#test_list = [{"id": person["id"], "date": person["date"]} for person in input_list if person["id"] == "000000001"][1:8]
-	#test_list = [{"id": person["id"], "date": person["date"]} for person in input_list if person["date"] > last_week]
-	test_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
-	return test_list
+	
+	f_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
+	return f_list
 
 def filter_by_period (inputs, init_date, final_date):
 	select_inputs = []
@@ -45,12 +38,10 @@ def filter_by_period (inputs, init_date, final_date):
 
 
 	return list(map(split_people, f_inputs))
-	#return split_people(select_inputs)
 
 def sum_hours_person(person_list):
 	""" Soma a quantidade de horas 'trabalhadas' por uma pessoa """
 
-	#print("Arthur: {0}".format(person_list))
 	date_list = [item["date"] for item in person_list]
 
 	start = date_list[0]
@@ -101,5 +92,4 @@ def split_people(inputs):
 
 		splited_people.append(splited_person)
 
-	#print("Antonio: {0}".format(splited_people))
 	return list(map(sum_hours_person, splited_people))
