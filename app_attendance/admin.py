@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Person, Dedada
+from .models import *
 
 admin.site.register(Person)
-admin.site.register(Dedada)
+admin.site.register(Fingerprint)
+admin.site.register(WorkedTime)

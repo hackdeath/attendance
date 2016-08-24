@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from datetime import datetime, timedelta, date
-from .models import Person, Dedada
+from .models import *
 
 def get_input(inFile):
     # Lê arquivo ignorando primeira e última linhas
