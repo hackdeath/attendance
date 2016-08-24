@@ -17,15 +17,25 @@ def get_input(inFile):
 
     test_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
 
-    for dedada in test_list:
-        if (not Person.objects.filter(id=dedada["id"])):
-            criar_usuario(dedada["id"], dedada["name"])
+    for person in test_list:
+        person_obj = Person.objects.get(id=person["id"])
+        fingerprint_obj = Fingerprint.objects.get_or_create(person=person_obj, moment=person ["date"]) # falha aqui na passagem de argumentos
+        
+        if (not Person.objects.filter(id=person["id"])):
+            add_person(person["id"], person["name"])
 
+        if (Person.objects.filter(id=person["id"]) and person ["date"] != fingerprint_obj.moment):
+            add_moment(person_obj, person ["date"])
+        
     return test_list
 
-def criar_usuario(id, nome):
-    person = Person.objects.create(id=id, name=nome)
+def add_person(id, name):
+    person = Person.objects.create(id=id, name=name)
     person.save()
+
+def add_moment (person, datetime):
+    fingerprint = Fingerprint.objects.create(person=person, moment=datetime)
+    fingerprint.save()
 
 def main():
     pass
