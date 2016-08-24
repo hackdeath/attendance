@@ -1,0 +1,26 @@
+{% extends "app_attendance/base.html" %} 
+
+{% block title %}Display{% endblock %}
+
+{% block content %}
+    {% for year in data %}
+        <h2>{{ year.year }}</h2>
+        {% for month in year.months %}
+            <h3>{{ month.name }}</h3>
+            <table>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Worked time</th>
+                </tr>
+                {% for person in month.people %}
+                <tr>
+                    <td>{{ person.id }}</td>
+                    <td>{{ person.name }}</td>
+                    <td>{{ person.time }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% endfor %}
+    {% endfor %}
+{% endblock %}

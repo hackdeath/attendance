@@ -15,7 +15,7 @@ def display(request):
 		if form.is_valid():
 			ufile = request.FILES['file']
 			input = get_input(ufile.read().decode("UTF-8"))
-			return render(request, 'app_attendance/display.html', {'people': input})
+			return render(request, 'app_attendance/display.html', {'data': input})
 		else:
 			return HttpResponse('Preenchimento do formulário inválido')
 	else:
