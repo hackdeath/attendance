@@ -1,0 +1,26 @@
+{% extends "app_attendance/base.html" %} 
+
+
+{% block title %}Display{% endblock %}
+
+{% block content %}
+    {% for people in months %}
+        <hr>
+        <table>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Remaining</th>
+                <th>Period</th>
+            </tr>
+        {% for person in people %}
+            <tr>
+                <td>{{ person.id }}</td>
+                <td>{{ person.name }}</td>
+                <td>{{ person.quantity }}</td>
+                <td>{{ person.period.0 }} until {{ person.period.1 }}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% endfor %}
+{% endblock %}
