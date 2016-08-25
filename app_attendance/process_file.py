@@ -15,30 +15,45 @@ def get_input(inFile):
         item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date}
         input_list.append(item)
 
-    test_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
+    person_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
 
-    for person in test_list:
-        person_obj = Person.objects.get(id=person["id"])
-        fingerprint_obj = Fingerprint.objects.get_or_create(person=person_obj, moment=person ["date"]) # falha aqui na passagem de argumentos
+    for person in person_list:
+        person_obj, created_person = Person.objects.get_or_create(id=person["id"], name=person["name"])
+        fingerprint_obj, created_fingerprint = Fingerprint.objects.get_or_create(person=person_obj, moment=person["date"])
         
-        if (not Person.objects.filter(id=person["id"])):
-            add_person(person["id"], person["name"])
+        if (created_fingerprint):
+            if (not WorkedTime.objects.filter(id=person["id"]).exists()):
+                workedTime_obj, created_workedTime_start = WorkedTime.objects.get_or_create(start=fingerprint_obj)
+            
+            elif (WorkedTime.objects.filter(id=person["id"]).latest('id').finish is None): # se o ultimo finish workedTime do usuario está vazio
+                workedTime_obj, created_workedTime_start = WorkedTime.objects.get_or_create(start=fingerprint_obj)
 
-        if (Person.objects.filter(id=person["id"]) and person ["date"] != fingerprint_obj.moment):
-            add_moment(person_obj, person ["date"])
-        
-    return test_list
+            else:
+                workedTime_obj = WorkedTime.objects.get(id=person["id"])
+                workedtime.finish = fingerprint_obj
+                workedtime.save() 
 
-def add_person(id, name):
-    person = Person.objects.create(id=id, name=name)
-    person.save()
 
-def add_moment (person, datetime):
-    fingerprint = Fingerprint.objects.create(person=person, moment=datetime)
-    fingerprint.save()
+        #else if():
+        #     workedTime_obj, created_workedTime_finish = WorkedTime.objects.get_or_create(finish=fingerprint_obj)
+
+    return person_list
 
 def main():
     pass
 
 if __name__ == '__main__':
 	main()
+
+# nova_dedada do usuario x
+# ultimo workedTime do usuario x
+
+
+# se ultimo workedTime do usuario x nao exist
+#   cria  workedTime do usuario x e joga dedada no start
+
+# se ultimo workedTime do usuario x tem finish
+#     cria novo workedtime e joga essa nova dedada no start do usuario x
+
+# senao
+#     joga essa nova dedada no finish do ultimo workedTime do usuario x

@@ -17,12 +17,12 @@ class Fingerprint(models.Model):
 class WorkedTime(models.Model):
     start  = models.ForeignKey(Fingerprint, 
                                on_delete    = models.CASCADE,
-                               blank        = False,
+                               null        = False,
                                related_name = "workedtime_start")
 
     finish = models.ForeignKey(Fingerprint, 
                                on_delete    = models.CASCADE,
-                               blank        = True,
+                               null        = True,
                                related_name = "workedtime_finish")
 
     def __str__(self):
