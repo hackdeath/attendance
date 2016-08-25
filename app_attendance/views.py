@@ -45,4 +45,3 @@ def index(request):
 	
 	form = {"file": file_form, "search": search_form}
 	return render(request, 'app_attendance/index.html', {'form': form})
-
