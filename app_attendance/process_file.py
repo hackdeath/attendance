@@ -21,31 +21,21 @@ def get_input(inFile):
         person_obj, created_person = Person.objects.get_or_create(id=person["id"], name=person["name"])
         fingerprint_obj, created_fingerprint = Fingerprint.objects.get_or_create(person=person_obj, moment=person["date"])
         
-        # # se há pessoas com finish vazio
-        # if (Fingerprint.objects.filter(person=person ["id"], workedtime_finish__isnull=True).exists()):
-        #     obj = Fingerprint.objects.filter(person=person ["id"], workedtime_finish__isnull=True).latest('id')
-
-            #print (Fingerprint.objects.filter(person=person ["id"], workedtime_finish__isnull=True).latest('id').update(finish=fingerprint_obj))
-
-            # fingerprint_obj = Fingerprint.objects.filter(person=person["id"]).latest('id').update(finish=fingerprint_obj)
-            # workedtime.finish = fingerprint
-            # workedtime.save()
-
-        # if (created_fingerprint):
-        #     if (not WorkedTime.objects.filter(start__isnull=True, finish__isnull=True).exists()):
-        #       workedTime_obj, created_workedTime_start = WorkedTime.objects.get_or_create(start=fingerprint_obj)
-        #     elif (WorkedTime.objects.filter(id=person["id"]).latest('id').finish is None): # se o ultimo finish workedTime do usuario está vazio
-        #         workedTime_obj, created_workedTime_start = WorkedTime.objects.get_or_create(start=fingerprint_obj)
-
-        #     else:
-        #         workedTime_obj = WorkedTime.objects.get(id=person["id"])
-        #         workedtime.finish = fingerprint_obj
-        #         workedtime.save() 
-
-
-        #else if():
-        #     workedTime_obj, created_workedTime_finish = WorkedTime.objects.get_or_create(finish=fingerprint_obj)
-
+        #if (created_fingerprint):
+        person_filtered_start = Fingerprint.objects.filter(person=person["id"], moment=person["date"], workedtime_start__isnull=True)
+        person_filtered_finish = Fingerprint.objects.filter(person=person["id"], moment=person["date"], workedtime_finish__isnull=True)
+        print (person_filtered_start)
+        # if (person_filtered_start.exists()):
+        #     if (person_filtered_finish.exists()):
+        #         WorkedTime.objects.get_or_create(start=fingerprint_obj)
+        #     if (not person_filtered_finish.exists()):
+        #         WorkedTime.objects.filter(start=FILTRO AQUI REVERSO).latest('start').update(finish=fingerprint_obj)
+            #print (person_filtered_finish.exists())
+        
+            #WorkedTime.objects.filter(start=fingerprint_obj, finish__isnull=True).update(finish=fingerprint_obj)
+                #WorkedTime.objects.filter(start_id=person["id"]).update(finish=fingerprint_obj)
+            #WorkedTime.objects.filter(start_id=person["id"]).update(start=fingerprint_obj)
+        
     return person_list
 
 def main():
