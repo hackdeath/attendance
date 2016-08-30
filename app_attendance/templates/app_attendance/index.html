@@ -3,9 +3,16 @@
 {% block title %}Selecione um arquivo{% endblock %}
 
 {% block content %}
-	<form action="{% url 'app_attendance:display' %}" method="POST" enctype="multipart/form-data">
+	<form action="{% url 'app_attendance:index' %}" method="POST" enctype="multipart/form-data">
 		{% csrf_token %}
-		{{ form.as_p }}
-		<input type="submit" name="Submit">
+		{{ form.file.as_p }}
+		<input type="submit" name="file_upload__submit">
+	</form>
+	<hr>
+	<form action="{% url 'app_attendance:index' %}" method="POST" enctype="multipart/form-data">
+		{% csrf_token %}
+		{{ form.search.as_p }}
+		<input type="submit" name="search_per_month__submit" value="Busca por mês">
+		<input type="submit" name="search_per_day__submit" value="Busca por dia">
 	</form>
 {% endblock %}
