@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta, date
 from .models import *
+from django.db.models import Q
 
 def get_input(inFile):
     # Lê arquivo ignorando primeira e última linhas
@@ -21,37 +22,16 @@ def get_input(inFile):
         person_obj, created_person = Person.objects.get_or_create(id=person["id"], name=person["name"])
         fingerprint_obj, created_fingerprint = Fingerprint.objects.get_or_create(person=person_obj, moment=person["date"])
         
-        #if (created_fingerprint):
-        person_filtered_start = Fingerprint.objects.filter(person=person["id"], moment=person["date"], workedtime_start__isnull=True)
-        person_filtered_finish = Fingerprint.objects.filter(person=person["id"], moment=person["date"], workedtime_finish__isnull=True)
-        print (person_filtered_start)
-        # if (person_filtered_start.exists()):
-        #     if (person_filtered_finish.exists()):
-        #         WorkedTime.objects.get_or_create(start=fingerprint_obj)
-        #     if (not person_filtered_finish.exists()):
-        #         WorkedTime.objects.filter(start=FILTRO AQUI REVERSO).latest('start').update(finish=fingerprint_obj)
-            #print (person_filtered_finish.exists())
-        
-            #WorkedTime.objects.filter(start=fingerprint_obj, finish__isnull=True).update(finish=fingerprint_obj)
-                #WorkedTime.objects.filter(start_id=person["id"]).update(finish=fingerprint_obj)
-            #WorkedTime.objects.filter(start_id=person["id"]).update(start=fingerprint_obj)
-        
-    return person_list
+        if (created_person):
+            WorkedTime.objects.create(start=fingerprint_obj).save()
 
-def main():
-    pass
+        elif (created_fingerprint):
+            penult_fingerprint = Fingerprint.objects.filter(person = person_obj).order_by('-moment')[1]
+            exists_workedtime  = WorkedTime.objects.get(Q(start = penult_fingerprint) | Q(finish = penult_fingerprint))
 
-if __name__ == '__main__':
-	main()
-
-# nova_dedada do usuario x
-# ultimo workedTime do usuario x
-
-# se ultimo workedTime do usuario x tem finish
-#     cria novo workedtime e joga essa nova dedada no start do usuario x
-
-# se ultimo workedTime do usuario x nao exist
-#   cria  workedTime do usuario x e joga dedada no start
-
-# senao
-#     joga essa nova dedada no finish do ultimo workedTime do usuario x
+            if (exists_workedtime):
+                if (not exists_workedtime.finish and penult_fingerprint.moment.date() == fingerprint_obj.moment.date()):
+                    exists_workedtime.finish = fingerprint_obj
+                    exists_workedtime.save()
+                else:
+                    WorkedTime.objects.create(start=fingerprint_obj).save()
