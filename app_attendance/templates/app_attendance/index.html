@@ -3,16 +3,49 @@
 {% block title %}Selecione um arquivo{% endblock %}
 
 {% block content %}
-	<form action="{% url 'app_attendance:index' %}" method="POST" enctype="multipart/form-data">
-		{% csrf_token %}
-		{{ form.file.as_p }}
-		<input type="submit" name="file_upload__submit">
-	</form>
-	<hr>
-	<form action="{% url 'app_attendance:index' %}" method="POST" enctype="multipart/form-data">
-		{% csrf_token %}
-		{{ form.search.as_p }}
-		<input type="submit" name="search_per_month__submit" value="Busca por mês">
-		<input type="submit" name="search_per_day__submit" value="Busca por dia">
-	</form>
+    <div class="pure-g">
+        <div class="pure-u-2-3" style="display: table; margin: 0 auto;">
+            <form action="{% url 'app_attendance:index' %}" class="pure-form pure-form-aligned" method="POST" enctype="multipart/form-data">
+                <fieldset>
+                    {% csrf_token %}
+                    <legend>Envio de dedadas</legend>
+
+                    <div class="pure-control-group">
+                        {{ form.file.file.label_tag }}
+                        {{ form.file.file }}
+                    </div>
+                    <div class="pure-controls">
+                        <input type="submit" class="pure-button pure-button-primary" name="file_upload__submit">
+                    </div>
+                </fieldset>
+            </form>
+
+            <form action="{% url 'app_attendance:index' %}" class="pure-form pure-form-aligned" method="POST" enctype="multipart/form-data">
+                <fieldset>
+                    {% csrf_token %}
+                    <legend>Busca</legend>
+
+                    <div class="pure-control-group">
+                        {{ form.search.init_date.label_tag }}
+                        {{ form.search.init_date }}
+                    </div>
+
+                    <div class="pure-control-group">
+                        {{ form.search.final_date.label_tag }}
+                        {{ form.search.final_date }}
+                    </div>
+
+                    <div class="pure-control-group">
+                        {{ form.search.name.label_tag }}
+                        {{ form.search.name }}
+                    </div>
+
+                    <div class="pure-controls">
+                        <input type="submit" class="pure-button pure-button-primary" name="search_per_month__submit" value="Busca por mês">
+                        <input type="submit" class="pure-button pure-button-primary" name="search_per_day__submit" value="Busca por dia">
+                    </div>
+                <fieldset>
+            </form>
+        </div>
+    </div>
 {% endblock %}
