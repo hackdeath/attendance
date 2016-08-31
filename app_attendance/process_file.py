@@ -35,3 +35,17 @@ def get_input(inFile):
                     exists_workedtime.save()
                 else:
                     WorkedTime.objects.create(start=fingerprint_obj).save()
+
+def display_input_per_day(search_form):
+    init_date = search_form["init_date"]
+    final_date = search_form["final_date"]
+    name = search_form["name"]
+
+    x = WorkedTime.objects.filter(start__moment__range=(init_date,final_date)).filter(start__person__name=name)
+
+    print (x[0].start.moment.date())
+    output_data = []
+    return output_data
+
+def display_input_per_month(file_form):
+    pass
