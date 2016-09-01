@@ -41,11 +41,82 @@ def display_input_per_day(search_form):
     final_date = search_form["final_date"]
     name = search_form["name"]
 
-    x = WorkedTime.objects.filter(start__moment__range=(init_date,final_date)).filter(start__person__name=name)
+    #Especificando o intervalo desejado; Especificando o nome do funcionário; Ordenando pela data
+    db_data = WorkedTime.objects.filter(start__moment__range=(init_date,final_date)).filter(start__person__name=name).order_by("start__moment")
 
-    print (x[0].start.moment.date())
-    output_data = []
-    return output_data
+    #Lista final
+    data = []
+    #Lista temporário para guardar os dados separados por período
+    months = []
+    days = []
+    people = []
+    #Listas para conversão
+    weekday = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+    month_name = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+    #Inicializando variáveis current's com o primeiro datetime
+    if (db_data):
+        current_year = db_data[0].start.moment.year
+        current_month = db_data[0].start.moment.month
+        current_day = db_data[0].start.moment.day
+    else:
+        current_year = current_month = current_day = 0
+    #Separando por anos
+    for worked_time in db_data:
+        moment = worked_time.start.moment
+        #Formatando dados de uma pessoa
+        person = {  "id":   worked_time.start.person.id,
+                    "name": worked_time.start.person.name,
+                    "time": worked_time.calc_timedelta()
+        }
+        try:
+            print("Timedelta: {0}\t| Start: {1}\t| Finish: {2}".format(worked_time.calc_timedelta(),worked_time.start.moment,worked_time.finish.moment))
+        except Exception:
+            print("Timedelta: {0}\t| Start: {1}\t| Finish: None".format(worked_time.calc_timedelta(),worked_time.start.moment))
+        #Separando por anos
+        if (current_year == moment.year):
+            #Separando por meses
+            if (current_month == moment.month):
+                #Separando por dias
+                if (current_day == moment.day):
+                    people.append(person)
+                #Não há mais fingerprints com current_day associado à current_month e current_year em db_data
+                else:
+                    #Formatando dados de um dia
+                    day = {"day": current_day, "weekday": weekday[moment.weekday()], "people": people}
+                    #Adicionar day em days
+                    days.append(day)
+                    people = [person]
+                    current_day = moment.day
 
-def display_input_per_month(file_form):
-    pass
+            #Não há mais fingerprints com current_month associado à current_year em db_data
+            else:
+                #Formatando dados de um mês
+                month = {"name": month_name[current_month - 1], "days": days}
+                #Adicionar month em months
+                months.append(month)
+                days = []
+                current_month = moment.month
+
+        #Não há mais fingerprints com current_year em db_data
+        else:
+            year = {"year": current_year, "months": months}
+            #Adicionar year em data
+            data.append(year)
+            months = []
+            current_year = moment.year
+
+    #Formatando dados de um dia
+    day = {"day": current_day, "weekday": weekday[moment.weekday()], "people":people}
+    #Adicionar day em days
+    days.append(day)
+    #Formatando dados de um mês
+    month = {"name": month_name[current_month - 1], "days": days}
+    #Adicionar month em months
+    months.append(month)
+    year = {"year": current_year, "months": months}
+    #Adicionar year em data
+    data.append(year)
+    return data
+
+def display_input_per_month(search_form):
+    return []
