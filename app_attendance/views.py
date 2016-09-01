@@ -8,12 +8,6 @@ import datetime
 # Implementar o retorno ao index quando o formulário estiver inválido
 # Construir view de confirmação quando um arquivo log for enviado
 # Trocar o retorno de index()
-def display_per_month(search_form):
-
-	return HttpResponse("Busca de fingerprint por mês")
-
-def display_per_day(search_form):
-	return HttpResponse("Busca de fingerprint por dia")
 
 def index(request):
 	#Checando se o método do formulário está correto
@@ -33,14 +27,15 @@ def index(request):
 		elif request.POST.get("search_per_month__submit"):
 			#Checando se o formulário é válido
 			if search_form.is_valid():
-				display_input_per_month(search_form.cleaned_data)
+				data = display_input_per_month(search_form.cleaned_data)
 				return display_per_month(search_form)
 		#Para busca por dia
 		elif request.POST.get("search_per_day__submit"):
 			#Checando se o formulário é válido
 			if search_form.is_valid():
-				display_input_per_day(search_form.cleaned_data)
-				return display_per_day(search_form)
+				data = display_input_per_day(search_form.cleaned_data)
+				print (data)
+				return render(request, 'app_attendance/display_day.html', {"data": data})
 	#Caso não seja, criar formulário vazio
 	else:
 		file_form = UploadFileForm()
