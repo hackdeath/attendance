@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import timedelta
 
 class Person(models.Model):
     id   = models.IntegerField(primary_key = True)
@@ -26,4 +27,11 @@ class WorkedTime(models.Model):
                                related_name = "workedtime_finish")
 
     def __str__(self):
-      return "Start: {0} Finish: {1}".format(self.start, self.finish)
+        return "Start: {0} Finish: {1}\n".format(self.start, self.finish)
+
+    def calc_timedelta(self):
+        if "finish" in locals():
+            return finish.moment - start.moment
+        else:
+            return timedelta(seconds=0)
+        
