@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta, date
 from .models import *
 from django.db.models import Q
+import copy
 
 def get_input(inFile):
     # Lê arquivo ignorando primeira e última linhas
@@ -55,12 +56,12 @@ def display_input_per_day(search_form):
     month_name = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
     #Inicializando variáveis current's com o primeiro datetime
     if (db_data):
-        current_year = db_data[0].start.moment.year
-        current_month = db_data[0].start.moment.month
-        current_day = db_data[0].start.moment.day
+        current_date = db_data[0].start.moment
     else:
-        current_year = current_month = current_day = 0
-    #Separando por anos
+        current_date = datetime.date.min
+
+    while db_data:
+        pass
     for worked_time in db_data:
         moment = worked_time.start.moment
         #Formatando dados de uma pessoa
@@ -68,52 +69,50 @@ def display_input_per_day(search_form):
                     "name": worked_time.start.person.name,
                     "time": worked_time.calc_timedelta()
         }
-        try:
-            print("Timedelta: {0}\t| Start: {1}\t| Finish: {2}".format(worked_time.calc_timedelta(),worked_time.start.moment,worked_time.finish.moment))
-        except Exception:
-            print("Timedelta: {0}\t| Start: {1}\t| Finish: None".format(worked_time.calc_timedelta(),worked_time.start.moment))
         #Separando por anos
-        if (current_year == moment.year):
+        if (current_date.year == moment.year):
             #Separando por meses
-            if (current_month == moment.month):
+            if (current_date.month == moment.month):
                 #Separando por dias
-                if (current_day == moment.day):
+                if (current_date.day == moment.day):
                     people.append(person)
-                #Não há mais fingerprints com current_day associado à current_month e current_year em db_data
+                #Não há mais fingerprints com current_date.day associado à current_date.month e current_date.year em db_data
                 else:
                     #Formatando dados de um dia
-                    day = {"day": current_day, "weekday": weekday[moment.weekday()], "people": people}
+                    day = {"day": current_date.day, "weekday": weekday[moment.weekday()], "people": people}
+                    print ("Date: {0}\t| Weekday: {1}\t{2}".format(moment, weekday[moment.weekday()], moment.weekday()))
                     #Adicionar day em days
                     days.append(day)
                     people = [person]
-                    current_day = moment.day
+                    current_date.day = moment.day
 
-            #Não há mais fingerprints com current_month associado à current_year em db_data
+            #Não há mais fingerprints com current_date.month associado à current_date.year em db_data
             else:
                 #Formatando dados de um mês
-                month = {"name": month_name[current_month - 1], "days": days}
+                month = {"name": month_name[current_date.month - 1], "days": days}
                 #Adicionar month em months
                 months.append(month)
                 days = []
-                current_month = moment.month
+                current_date.month = moment.month
 
-        #Não há mais fingerprints com current_year em db_data
+        #Não há mais fingerprints com current_date.year em db_data
         else:
-            year = {"year": current_year, "months": months}
+            year = {"year": current_date.year, "months": months}
+
             #Adicionar year em data
             data.append(year)
             months = []
-            current_year = moment.year
+            current_date.year = moment.year
 
     #Formatando dados de um dia
-    day = {"day": current_day, "weekday": weekday[moment.weekday()], "people":people}
+    day = {"day": current_date.day, "weekday": weekday[moment.weekday()], "people":people}
     #Adicionar day em days
     days.append(day)
     #Formatando dados de um mês
-    month = {"name": month_name[current_month - 1], "days": days}
+    month = {"name": month_name[current_date.month - 1], "days": days}
     #Adicionar month em months
     months.append(month)
-    year = {"year": current_year, "months": months}
+    year = {"year": current_date.year, "months": months}
     #Adicionar year em data
     data.append(year)
     return data
