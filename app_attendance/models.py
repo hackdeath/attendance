@@ -30,8 +30,7 @@ class WorkedTime(models.Model):
         return "Start: {0} Finish: {1}\n".format(self.start, self.finish)
 
     def calc_timedelta(self):
-        if "finish" in locals():
-            return finish.moment - start.moment
-        else:
+        try:
+            return self.finish.moment - self.start.moment
+        except AttributeError:
             return timedelta(seconds=0)
-        
