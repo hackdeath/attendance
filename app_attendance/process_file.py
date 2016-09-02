@@ -68,10 +68,6 @@ def display_input_per_day(search_form):
                     "name": worked_time.start.person.name,
                     "time": worked_time.calc_timedelta()
         }
-        try:
-            print("Timedelta: {0}\t| Start: {1}\t| Finish: {2}".format(worked_time.calc_timedelta(),worked_time.start.moment,worked_time.finish.moment))
-        except Exception:
-            print("Timedelta: {0}\t| Start: {1}\t| Finish: None".format(worked_time.calc_timedelta(),worked_time.start.moment))
         #Separando por anos
         if (current_year == moment.year):
             #Separando por meses
@@ -100,6 +96,7 @@ def display_input_per_day(search_form):
         #Não há mais fingerprints com current_year em db_data
         else:
             year = {"year": current_year, "months": months}
+
             #Adicionar year em data
             data.append(year)
             months = []
