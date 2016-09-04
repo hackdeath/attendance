@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 from .models import *
-from django.db.models import Q
+from django.utils import dateparse
+
 
 def get_input(inFile):
     # Lê arquivo ignorando primeira e última linhas
@@ -12,40 +13,30 @@ def get_input(inFile):
     input_list = []
     for line in inFile:
         splited_line = line.split("\t")
-        date = datetime.strptime(splited_line[4][:-1], "%Y/%m/%d  %H:%M")
-        item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date}
+        splited_datetime = splited_line[4][:-1].split("  ")
+        time = dateparse.parse_time(splited_datetime[1])
+        date = datetime.strptime(splited_line[4][:-1], "%Y/%m/%d %H:%M").date()
+        item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date, "time": time}
         input_list.append(item)
 
-    person_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
+    # adicionado key "time"
+    person_list = [{"id": person["id"], "date": person["date"], "name": person["name"], "time": person["time"]} for person in input_list]
 
     for person in person_list:
         person_obj, created_person = Person.objects.get_or_create(id=person["id"], name=person["name"])
-        fingerprint_obj, created_fingerprint = Fingerprint.objects.get_or_create(person=person_obj, moment=person["date"])
-        
+        date_obj, created_dates = Date.objects.get_or_create(date_fingerprint=person["date"])
+
+        # criar uma linha para "pessoa"
         if (created_person):
-            WorkedTime.objects.create(start=fingerprint_obj).save()
+            WorkedTime.objects.create(person=person_obj, date=date_obj, initial=person["time"]).save()
 
-        elif (created_fingerprint):
-            penult_fingerprint = Fingerprint.objects.filter(person = person_obj).order_by('-moment')[1]
-            exists_workedtime  = WorkedTime.objects.get(Q(start = penult_fingerprint) | Q(finish = penult_fingerprint))
-
-            if (exists_workedtime):
-                if (not exists_workedtime.finish and penult_fingerprint.moment.date() == fingerprint_obj.moment.date()):
-                    exists_workedtime.finish = fingerprint_obj
-                    exists_workedtime.save()
+        # adicionar "time" no initial ou final
+        else:
+            # filtra última ocorrência e pega o objeto (esse filtro tem problemas)
+            last_workedtime = WorkedTime.objects.filter(person=person_obj).order_by('-person', '-date').latest('initial')
+            if (last_workedtime):
+                if(not last_workedtime.final):
+                    last_workedtime.final = person["time"]
+                    last_workedtime.save()
                 else:
-                    WorkedTime.objects.create(start=fingerprint_obj).save()
-
-def display_input_per_day(search_form):
-    init_date = search_form["init_date"]
-    final_date = search_form["final_date"]
-    name = search_form["name"]
-
-    x = WorkedTime.objects.filter(start__moment__range=(init_date,final_date)).filter(start__person__name=name)
-
-    print (x[0].start.moment.date())
-    output_data = []
-    return output_data
-
-def display_input_per_month(file_form):
-    pass
+                    worked_obj, created_worked = WorkedTime.objects.get_or_create(person=person_obj, date=date_obj, initial=person["time"])
