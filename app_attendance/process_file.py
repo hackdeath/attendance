@@ -34,16 +34,18 @@ def get_input(inFile):
             if (last_workedtime.exists()):
                 # pega o objeto da pessoa filtrada
                 last_workedtime = last_workedtime.latest('initial')
+                # checa se deve atualizar o final
                 if (not last_workedtime.final and person["date"] == last_workedtime.date.date_fingerprint and last_workedtime.initial < person["time"]):
                     last_workedtime.final = person["time"]
                     last_workedtime.save()
+                # cria uma nova row preenchendo o initial
                 elif (last_workedtime.final != person["time"]):
                     worked_obj, created_worked = WorkedTime.objects.get_or_create(person=person_obj, date=date_obj, initial=person["time"])
-        
+    
+    # exclui os dados não pareados
     for person in person_list:
         person_obj = Person.objects.get(id=person["id"], name=person["name"])
         any_workedtime = WorkedTime.objects.filter(person=person_obj, final__isnull=True)            
-        # exclui do banco de dados os dados soltos
         if (any_workedtime):
             for each in any_workedtime:
                 print ("deletado")
@@ -52,54 +54,77 @@ def get_input(inFile):
 def display_input_per_day(search_form):
     init_date = search_form["init_date"]
     final_date = search_form["final_date"]
-    name = search_form["name"]
+    id = search_form["id"]
 
-    #Especificando o intervalo desejado; Especificando o nome do funcionário; Ordenando pela data
-    db_data = Date.objects.filter(date_fingerprint__range=(init_date,final_date)).order_by("date_fingerprint")
-    # db_data = Date.objects.filter(date_fingerprint__range=(init_date,final_date)).filter(work_times__person__name=name).order_by("date_fingerprint")
+    #Especificando o intervalo desejado
+    db_data = Date.objects.filter(date_fingerprint__range=(init_date,final_date))
+    #Especificando o nome do funcionário
+    db_data = db_data.filter(work_times__person__id=id)
+    #Ordenando pela data
+    db_data = db_data.order_by("date_fingerprint")
 
-    month_name = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-    
-    if (db_data):
-        current_date = db_data[0].date_fingerprint
+    #Definindo as variáveis gerais usadas no algoritmo
+    data = [] #Variável final de retorno
+    month_name = [  "Janeiro",
+                    "Fevereiro",
+                    "Março",
+                    "Abril",
+                    "Maio",
+                    "Junho",
+                    "Julho",
+                    "Agosto",
+                    "Setembro",
+                    "Outubro",
+                    "Novembro",
+                    "Dezembro"]
 
-    months = []
-    days = []
+    weekday = [ "Segunda-feira",
+                "Terça-feira",
+                "Quarta-feira",
+                "Quinta-feira",
+                "Sexta-feira",
+                "Sábado",
+                "Domingo"]
 
-    for date in db_data:
-        loop_date = date.date_fingerprint
-        day = generate_day_dictionary(date.worked_times, loop_date)
+    #Coletando os anos possíveis no db_data
+    year_list = db_data.dates("date_fingerprint", "year", order="ASC")
+    for current_year in year_list:
+        splited_year = db_data.filter(date_fingerprint__year=current_year.year)
+        
+        months = []
+        #Coletando meses possíveis no splited_year
+        month_list = splited_year.dates("date_fingerprint","month", order="ASC")
+        for current_month in month_list:
+            splited_month = splited_year.filter(date_fingerprint__month=current_month.month)
 
-        if (current_date.year == loop_date.year):
-            if (current_date.month == loop_date.month):
+            days = []
+            #Os meses já separam os dias
+            for splited_day in splited_month:
+                people = []
+                #Crinando dicionários para as pessoas que trabalharam nesse dia
+                for worked_time in splited_day.worked_times:
+                    person = {  "id": worked_time.person.id,
+                                "name": worked_time.person.name,
+                                "time": worked_time.calc_timedelta()}
+                    people.append(person)
+
+                #Criando dicionário para o dia
+                day = { "day": splited_day.day,
+                        "weekday": weekday[splited_day.weekday()],
+                        "people": people}
                 days.append(day)
-            else:
-                current_date = date.date_fingerprint
-                month = {"name": month_name[loop_date.month], "days": days}
-                months.append(month)
 
-                #Resetando variáveis
-                days = [day]
-        else:
-            year = {"year": loop_date.year, "months": months}
-            
-            #Resetando variáveis
-            months = []
-            days = [day]
+            #Criando dicionário para o mês
+            month = {   "name": month_name[current_month-1],
+                        "days": days}
+            months.append(month)
 
-def generate_day_dictionary(worked_times, date):
-    weekday = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
-    people = []
-    
-    for wt in date.work_times:
+        #Criando dicionário para o ano
+        year = {"year": current_year.year,
+                "months": months}
+        data.append(year)
 
-    person = {  "id": wt.person.id,
-                "name": wt.person.name,
-                "time": wt.calc_timedelta()}
-    people.append(person)
-    
-    day = { "day": date.day,
-        "weekday": weekday[date.weekday()],
-        "people": people}
-    
-    return day
+    return data
+
+def display_input_per_month():
+    pass
