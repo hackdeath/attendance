@@ -17,7 +17,7 @@ class WorkedTime(models.Model):
     person   = models.ForeignKey(Person, on_delete = models.CASCADE, null = True)
     date     = models.ForeignKey(Date,   on_delete = models.CASCADE, null = True)
     
-    initial  = models.TimeField(null = True)
+    initial  = models.TimeField(null = False)
     final    = models.TimeField(null = True)
 
     def __str__(self):
