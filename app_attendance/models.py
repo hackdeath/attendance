@@ -3,34 +3,30 @@ from datetime import timedelta
 
 class Person(models.Model):
     id   = models.IntegerField(primary_key = True)
-    name = models.CharField(max_length=14)
+    name = models.CharField(max_length = 14)
 
     def __str__(self):
       return "{0} - {1}".format(self.id, self.name)
 
-class Fingerprint(models.Model):
-    person = models.ForeignKey(Person, on_delete = models.CASCADE)
-    moment = models.DateTimeField(blank = False)
+class Date(models.Model):
+    date_fingerprint = models.DateField(blank = True, null = True)
 
     def __str__(self):
-      return "{0} - {1}".format(self.person, self.moment)
+      return "{0}".format(self.date_fingerprint)
 
 class WorkedTime(models.Model):
-    start  = models.ForeignKey(Fingerprint, 
-                               on_delete    = models.CASCADE,
-                               null        = False,
-                               related_name = "workedtime_start")
-
-    finish = models.ForeignKey(Fingerprint, 
-                               on_delete    = models.CASCADE,
-                               null        = True,
-                               related_name = "workedtime_finish")
+    person   = models.ForeignKey(Person, on_delete = models.CASCADE, null = True, related_name="work_times", related_query_name="work_times")
+    date     = models.ForeignKey(Date,   on_delete = models.CASCADE, null = True, related_name="work_times", related_query_name="work_times")
+    
+    initial  = models.TimeField(null = False)
+    final    = models.TimeField(null = True)
 
     def __str__(self):
-        return "Start: {0} Finish: {1}\n".format(self.start, self.finish)
 
-    def calc_timedelta(self):
+        return "Person: {0} Date: {1} Initial: {2} Final: {3}".format(self.person, self.date, self.initial, self.final)
+
+    def calc_timedelta():
         try:
-            return self.finish.moment - self.start.moment
+            return final - initial
         except AttributeError:
             return timedelta(seconds=0)

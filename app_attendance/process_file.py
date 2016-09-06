@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, time
 from .models import *
-from django.db.models import Q
-import copy
+from django.utils import dateparse
 
 def get_input(inFile):
     # Lê arquivo ignorando primeira e última linhas
@@ -13,29 +12,33 @@ def get_input(inFile):
     input_list = []
     for line in inFile:
         splited_line = line.split("\t")
-        date = datetime.strptime(splited_line[4][:-1], "%Y/%m/%d  %H:%M")
-        item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date}
+        splited_datetime = splited_line[4][:-1].split("  ")
+        time = dateparse.parse_time(splited_datetime[1])
+        date = datetime.strptime(splited_line[4][:-1], "%Y/%m/%d %H:%M").date()
+        item = {"id": splited_line[2], "name": splited_line[3].strip(), "date": date, "time": time}
         input_list.append(item)
 
-    person_list = [{"id": person["id"], "date": person["date"], "name": person["name"]} for person in input_list]
+    # adicionado key "time"
+    person_list = [{"id": person["id"], "date": person["date"], "name": person["name"], "time": person["time"]} for person in input_list]
 
     for person in person_list:
         person_obj, created_person = Person.objects.get_or_create(id=person["id"], name=person["name"])
-        fingerprint_obj, created_fingerprint = Fingerprint.objects.get_or_create(person=person_obj, moment=person["date"])
-        
+        date_obj, created_dates = Date.objects.get_or_create(date_fingerprint=person["date"])
+
+        # criar uma linha para "pessoa"
         if (created_person):
-            WorkedTime.objects.create(start=fingerprint_obj).save()
+            WorkedTime.objects.create(person=person_obj, date=date_obj, initial=person["time"]).save()
 
-        elif (created_fingerprint):
-            penult_fingerprint = Fingerprint.objects.filter(person = person_obj).order_by('-moment')[1]
-            exists_workedtime  = WorkedTime.objects.get(Q(start = penult_fingerprint) | Q(finish = penult_fingerprint))
-
-            if (exists_workedtime):
-                if (not exists_workedtime.finish and penult_fingerprint.moment.date() == fingerprint_obj.moment.date()):
-                    exists_workedtime.finish = fingerprint_obj
-                    exists_workedtime.save()
+        # adicionar "time" no initial ou final
+        else:
+            # filtra última ocorrência e pega o objeto (esse filtro tem problemas)
+            last_workedtime = WorkedTime.objects.filter(person=person_obj).order_by('-person', '-date').latest('initial')
+            if (last_workedtime):
+                if(not last_workedtime.final):
+                    last_workedtime.final = person["time"]
+                    last_workedtime.save()
                 else:
-                    WorkedTime.objects.create(start=fingerprint_obj).save()
+                    worked_obj, created_worked = WorkedTime.objects.get_or_create(person=person_obj, date=date_obj, initial=person["time"])
 
 def display_input_per_day(search_form):
     init_date = search_form["init_date"]
@@ -43,79 +46,56 @@ def display_input_per_day(search_form):
     name = search_form["name"]
 
     #Especificando o intervalo desejado; Especificando o nome do funcionário; Ordenando pela data
-    db_data = WorkedTime.objects.filter(start__moment__range=(init_date,final_date)).filter(start__person__name=name).order_by("start__moment")
+    db_data = Date.objects.filter(date_fingerprint__range=(init_date,final_date)).order_by("date_fingerprint")
+    # db_data = Date.objects.filter(date_fingerprint__range=(init_date,final_date)).filter(work_times__person__name=name).order_by("date_fingerprint")
 
-    #Lista final
-    data = []
-    #Lista temporário para guardar os dados separados por período
+    month_name = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
+    
+    if (db_data):
+        current_date = db_data[0].date_fingerprint
+
     months = []
     days = []
-    people = []
-    #Listas para conversão
-    weekday = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
-    month_name = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]
-    #Inicializando variáveis current's com o primeiro datetime
-    if (db_data):
-        current_date = db_data[0].start.moment
-    else:
-        current_date = datetime.date.min
+    data = []
+    
+    for date in db_data:
+        loop_date = date.date_fingerprint
+        day = generate_day_dictionary(date.worked_times, loop_date)
 
-    while db_data:
-        pass
-    for worked_time in db_data:
-        moment = worked_time.start.moment
-        #Formatando dados de uma pessoa
-        person = {  "id":   worked_time.start.person.id,
-                    "name": worked_time.start.person.name,
-                    "time": worked_time.calc_timedelta()
-        }
-        #Separando por anos
-        if (current_date.year == moment.year):
-            #Separando por meses
-            if (current_date.month == moment.month):
-                #Separando por dias
-                if (current_date.day == moment.day):
-                    people.append(person)
-                #Não há mais fingerprints com current_date.day associado à current_date.month e current_date.year em db_data
-                else:
-                    #Formatando dados de um dia
-                    day = {"day": current_date.day, "weekday": weekday[moment.weekday()], "people": people}
-                    print ("Date: {0}\t| Weekday: {1}\t{2}".format(moment, weekday[moment.weekday()], moment.weekday()))
-                    #Adicionar day em days
-                    days.append(day)
-                    people = [person]
-                    current_date.day = moment.day
-
-            #Não há mais fingerprints com current_date.month associado à current_date.year em db_data
+        if (current_date.year == loop_date.year):
+            if (current_date.month == loop_date.month):
+                days.append(day)
             else:
-                #Formatando dados de um mês
-                month = {"name": month_name[current_date.month - 1], "days": days}
-                #Adicionar month em months
+                current_date = date.date_fingerprint
+                month = {"name": month_name[loop_date.month], "days": days}
                 months.append(month)
-                days = []
-                current_date.month = moment.month
 
-        #Não há mais fingerprints com current_date.year em db_data
+                #Resetando variáveis
+                days = [day]
         else:
-            year = {"year": current_date.year, "months": months}
-
-            #Adicionar year em data
+            current_date = date.date_fingerprint
+            month = {"name": month_name[loop_date.month], "days": days}
+            months.append(month)
+            year = {"year": loop_date.year, "months": months}
             data.append(year)
+            #Resetando variáveis
             months = []
-            current_date.year = moment.year
+            days = [day]
 
-    #Formatando dados de um dia
-    day = {"day": current_date.day, "weekday": weekday[moment.weekday()], "people":people}
-    #Adicionar day em days
-    days.append(day)
-    #Formatando dados de um mês
-    month = {"name": month_name[current_date.month - 1], "days": days}
-    #Adicionar month em months
-    months.append(month)
-    year = {"year": current_date.year, "months": months}
-    #Adicionar year em data
-    data.append(year)
     return data
 
-def display_input_per_month(search_form):
-    return []
+def generate_day_dictionary(worked_times, date):
+    weekday = ["Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado", "Domingo"]
+    people = []
+    
+    for wt in date.work_times:
+        person = {  "id": wt.person.id,
+                    "name": wt.person.name,
+                    "time": wt.calc_timedelta()}
+        people.append(person)
+    
+    day = { "day": date.day,
+            "weekday": weekday[date.weekday()],
+            "people": people}
+    
+    return day
