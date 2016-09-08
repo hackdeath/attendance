@@ -15,6 +15,7 @@ def index(request):
 		#Para upload de arquivos
 		file_form = UploadFileForm(request.POST, request.FILES)
 		search_form = SearchWorkedTimeForm(request.POST)
+		
 		if request.POST.get("file_upload__submit"):
 			#Checando se o formulário é válido
 			if file_form.is_valid():
@@ -27,14 +28,16 @@ def index(request):
 		elif request.POST.get("search_per_month__submit"):
 			#Checando se o formulário é válido
 			if search_form.is_valid():
-				data = display_input_per_month(search_form.cleaned_data)
-				return display_per_month(search_form)
+				data = display_input(search_form.cleaned_data, "month")
+				return render(request, 'app_attendance/display_month.html', {"data": data})
+
 		#Para busca por dia
 		elif request.POST.get("search_per_day__submit"):
 			#Checando se o formulário é válido
 			if search_form.is_valid():
-				data = display_input_per_day(search_form.cleaned_data)
+				data = display_input(search_form.cleaned_data, "day")
 				return render(request, 'app_attendance/display_day.html', {"data": data})
+
 	#Caso não seja, criar formulário vazio
 	else:
 		file_form = UploadFileForm()

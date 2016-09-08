@@ -40,7 +40,7 @@ def get_input(inFile):
                 else:
                     worked_obj, created_worked = WorkedTime.objects.get_or_create(person=person_obj, date=date_obj, initial=person["time"])
 
-def display_input_per_day(search_form):
+def display_input(search_form, mode):
     init_date = search_form["init_date"]
     final_date = search_form["final_date"]
     id = search_form["id"]
@@ -86,26 +86,36 @@ def display_input_per_day(search_form):
         for current_month in month_list:
             splited_month = splited_year.filter(date_fingerprint__month=current_month.month)
 
-            days = []
-            #Os meses já separam os dias
-            for splited_day in splited_month:
+            #Gerando dados por dia
+            if (mode == "day"):
+                days = []
+                #Os meses já separam os dias
+                for splited_day in splited_month:
+                    #Criando dicionário para o dia
+                    day = { "day": splited_day.day,
+                            "weekday": weekday[splited_day.weekday()],
+                            "people": generate_people_list(splited_day.worked_times)}
+                    days.append(day)
+
+                #Criando dicionário para o mês
+                month = {   "name": month_name[current_month.month - 1],
+                            "days": days}
+
+            #Gerando dados por mês
+            else if(mode == "month"):
                 people = []
-                #Crinando dicionários para as pessoas que trabalharam nesse dia
-                for worked_time in splited_day.worked_times:
-                    person = {  "id": worked_time.person.id,
-                                "name": worked_time.person.name,
-                                "time": worked_time.calc_timedelta()}
-                    people.append(person)
+                #Os meses já separam os dias
+                for splited_day in splited_month:
+                    people = people + generate_people_list(splited_day.worked_times)
 
-                #Criando dicionário para o dia
-                day = { "day": splited_day.day,
-                        "weekday": weekday[splited_day.weekday()],
-                        "people": people}
-                days.append(day)
+                month = {   "name": month_name[current_month.month - 1]
+                            "people": people}
 
-            #Criando dicionário para o mês
-            month = {   "name": month_name[current_month-1],
-                        "days": days}
+            #Caso mode não seja 'day' ou 'month', retornar lista vazia
+            else:
+                return []
+
+
             months.append(month)
 
         #Criando dicionário para o ano
@@ -115,5 +125,13 @@ def display_input_per_day(search_form):
 
     return data
 
-def display_input_per_month():
-    pass
+def generate_people_list(worked_times):
+    people = []
+    
+    for worked_time in worked_times:
+        person = {  "id": worked_time.person.id,
+                    "name": worked_time.person.name,
+                    "time": worked_time.calc_timedelta()}
+        people.append(person)
+
+    return people
