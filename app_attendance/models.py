@@ -15,8 +15,8 @@ class Date(models.Model):
       return "{0}".format(self.date_fingerprint)
 
 class WorkedTime(models.Model):
-    person   = models.ForeignKey(Person, on_delete = models.CASCADE, null = True, related_name="work_times", related_query_name="work_times")
-    date     = models.ForeignKey(Date,   on_delete = models.CASCADE, null = True, related_name="work_times", related_query_name="work_times")
+    person   = models.ForeignKey(Person, on_delete = models.CASCADE, null = True, related_name="worked_times", related_query_name="worked_times")
+    date     = models.ForeignKey(Date,   on_delete = models.CASCADE, null = True, related_name="worked_times", related_query_name="worked_times")
     
     initial  = models.TimeField(null = False)
     final    = models.TimeField(null = True)
