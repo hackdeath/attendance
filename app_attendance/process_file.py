@@ -52,11 +52,11 @@ def get_input(inFile):
 
 def display_input(search_form, mode):
     #Preenchendo valor de init_date
-    if (search_form["init_date"] == None): init_date = datetime.date.min
+    if (search_form["init_date"] == None): init_date = date.min
     else: init_date = search_form["init_date"]
 
     #Preenchendo valor de final_date
-    if (search_form["final_date"] == None): final_date = datetime.date.max
+    if (search_form["final_date"] == None): final_date = date.max
     else: final_date = search_form["final_date"]
     
 
@@ -105,10 +105,12 @@ def display_input(search_form, mode):
                 days = []
                 #Os meses já separam os dias
                 for splited_day in splited_month:
+                    worked_times = splited_day.worked_times.select_related()
+                    weekday_number = splited_day.date_fingerprint.weekday()
                     #Criando dicionário para o dia
                     day = { "day": splited_day.date_fingerprint.day,
-                            "weekday": weekday[splited_day.date_fingerprint.weekday()],
-                            "people": generate_people_list(splited_day.worked_times)}
+                            "weekday": weekday[weekday_number],
+                            "people": generate_people_list(worked_times)}
                     days.append(day)
 
                 #Criando dicionário para o mês
@@ -120,7 +122,8 @@ def display_input(search_form, mode):
                 people = []
                 #Os meses já separam os dias
                 for splited_day in splited_month:
-                    people = people + generate_people_list(splited_day.worked_times)
+                    worked_times = splited_day.worked_times.select_related()
+                    people = people + generate_people_list(worked_times)
 
                 month = {   "name": month_name[current_month.month - 1],
                             "people": people}
@@ -141,10 +144,10 @@ def display_input(search_form, mode):
 
 def generate_people_list(worked_times):
     people = []
-    # for worked_time in worked_times:
-    #     person = {  "id": worked_time.person.id,
-    #                 "name": worked_time.person.name,
-    #                 "time": worked_time.calc_timedelta()}
-    #     people.append(person)
+    for worked_time in worked_times:
+        person = {  "id": worked_time.person.id,
+                    "name": worked_time.person.name,
+                    "time": worked_time.calc_timedelta()}
+        people.append(person)
 
     return people
