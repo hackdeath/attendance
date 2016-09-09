@@ -68,7 +68,9 @@ def display_input(search_form, mode):
     #Especificando o intervalo desejado
     db_data = Date.objects.filter(date_fingerprint__range=(init_date,final_date))
     #Especificando o nome do funcionário
-    if (search_form["id"] != None): db_data = db_data.filter(work_times__person__id=id)
+    if (search_form["id"] != None):
+        id = search_form["id"]
+        db_data = db_data.filter(worked_times__person__id=id)
     #Ordenando pela data
     db_data = db_data.order_by("date_fingerprint")
 
