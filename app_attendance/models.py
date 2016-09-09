@@ -1,5 +1,5 @@
 from django.db import models
-from datetime import timedelta
+from datetime import timedelta, datetime, date
 
 class Person(models.Model):
     id   = models.IntegerField(primary_key = True)
@@ -24,8 +24,10 @@ class WorkedTime(models.Model):
     def __str__(self):
         return "Person: {0} Date: {1} Initial: {2} Final: {3}".format(self.person, self.date, self.initial, self.final)
 
-    def calc_timedelta():
+    def calc_timedelta(self):
         try:
-            return final - initial
+            f = datetime.combine(date.min, self.final)
+            i = datetime.combine(date.min, self.initial)
+            return f - i
         except AttributeError:
             return timedelta(seconds=0)
