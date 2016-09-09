@@ -46,9 +46,14 @@ def get_input(inFile):
     for person in person_list:
         person_obj = Person.objects.get(id=person["id"], name=person["name"])
         any_workedtime = WorkedTime.objects.filter(person=person_obj, final__isnull=True)            
+        date_orphan = Date.objects.all()
         if (any_workedtime):
             for each in any_workedtime:
                 each.delete()
+        for date in date_orphan:
+           key_time = WorkedTime.objects.filter(date=date)
+           if not key_time:
+               each.delete()
 
 def display_input(search_form, mode):
     #Preenchendo valor de init_date
