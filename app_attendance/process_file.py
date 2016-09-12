@@ -46,14 +46,11 @@ def get_input(inFile):
     for person in person_list:
         person_obj = Person.objects.get(id=person["id"], name=person["name"])
         any_workedtime = WorkedTime.objects.filter(person=person_obj, final__isnull=True)            
-        date_orphan = Date.objects.all()
-        if (any_workedtime):
-            for each in any_workedtime:
-                each.delete()
+        date_orphan = Date.objects.filter(worked_times=None)
+        for each in any_workedtime:
+            each.delete()
         for date in date_orphan:
-           key_time = WorkedTime.objects.filter(date=date)
-           if not key_time:
-               each.delete()
+            date.delete()
 
 def display_input(search_form, mode):
     #Preenchendo valor de init_date
@@ -67,10 +64,11 @@ def display_input(search_form, mode):
 
     #Especificando o intervalo desejado
     db_data = Date.objects.filter(date_fingerprint__range=(init_date,final_date))
-    #Especificando o nome do funcionário
+    #Selecionando as datas que contenham worked_times com id especificado
+    #Otimiza o processamento dos dados
     if (search_form["id"] != None):
         id = search_form["id"]
-        db_data = db_data.filter(worked_times__person__id=id)
+        db_data = db_data.filter(worked_times__person__id__exact=id).distinct()
     #Ordenando pela data
     db_data = db_data.order_by("date_fingerprint")
 
@@ -112,7 +110,13 @@ def display_input(search_form, mode):
                 days = []
                 #Os meses já separam os dias
                 for splited_day in splited_month:
+                    print ("Hello world")
+                    print (splited_month)
                     worked_times = splited_day.worked_times.select_related()
+                    #Filtrando os worked_times por id
+                    if (search_form["id"] != None): 
+                        worked_times = worked_times.filter(person__id__exact=id)
+
                     weekday_number = splited_day.date_fingerprint.weekday()
                     #Criando dicionário para o dia
                     day = { "day": splited_day.date_fingerprint.day,
@@ -130,6 +134,10 @@ def display_input(search_form, mode):
                 #Os meses já separam os dias
                 for splited_day in splited_month:
                     worked_times = splited_day.worked_times.select_related()
+                    #Filtrando os worked_times por id
+                    if (search_form["id"] != None):
+                        worked_times = worked_times.filter(person__id__exact=id)
+                    
                     people = people + generate_people_list(worked_times)
 
                 month = {   "name": month_name[current_month.month - 1],
