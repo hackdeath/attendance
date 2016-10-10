@@ -158,11 +158,21 @@ def display_input(search_form, mode):
     return data
 
 def generate_people_list(worked_times):
+    list_people = []
+
+    for wt in worked_times: list_people.append(worked_times.person)
+
+    set_people = set(list_people)
     people = []
-    for worked_time in worked_times:
-        person = {  "id": worked_time.person.id,
-                    "name": worked_time.person.name,
-                    "time": worked_time.calc_timedelta()}
+    for set_person in set_people:
+        person_wt = worked_times.filter(person=set_person)
+
+        total_time = timedelta(seconds=0)
+        for i in person_wt: total_time = total_time + i.calc_timedelta()
+
+        person = {  "id": person_wt.person.id,
+                    "name": person_wt.person.name,
+                    "time": total_time}
         people.append(person)
 
     return people
