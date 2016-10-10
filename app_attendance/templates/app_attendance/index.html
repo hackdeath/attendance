@@ -3,12 +3,15 @@
 {% block title %}Selecione um arquivo{% endblock %}
 
 {% block content %}
+    {% load static %}
+    <div><img src="{% static 'app_attedance/logo.png' %}"></div>
+
     <div class="pure-g">
         <div class="pure-u-2-3" style="display: table; margin: 0 auto;">
             <form action="{% url 'app_attendance:index' %}" class="pure-form pure-form-aligned" method="POST" enctype="multipart/form-data">
                 <fieldset>
                     {% csrf_token %}
-                    <legend>Envio de dedadas</legend>
+                    <legend>Envio de entrada</legend>
 
                     <div class="pure-control-group">
                         {{ form.file.file.label_tag }}
