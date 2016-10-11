@@ -2,6 +2,7 @@
 
 <html lang='en-us'>
     <head>
+    	{% load static %}
         <meta charset='UTF-8' />
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -11,6 +12,12 @@
     </head>
 
     <body>
+        <div class="header">
+	        <div class="pure-menu pure-menu-horizontal" style="background-color: rgb(230, 230, 230);">
+   				<div><img src="{% static 'app_attendance/logo.png' %}" style="max-width: 48px; float: left;"></div>
+	            <a class="pure-menu-heading" href="{% url 'app_attendance:index' %}">Attendance</a>
+	        </div>
+	    </div>
         {% block content %}{% endblock %}
     </body>
 </html>
